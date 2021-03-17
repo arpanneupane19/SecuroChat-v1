@@ -13,7 +13,7 @@ const io = socket(server);
 
 let rooms = [];
 let botName = 'SecuroChat Bot'
-let users = {};
+let users = new Map();
 
 app.get('/:code', function (req, res) {
     let codeFound = false;
@@ -42,12 +42,19 @@ io.on('connection', (socket) => {
         rooms.push(data)
         console.log(rooms);
         socket.join(data.roomCode);
+        users.set(data.user, data.roomCode);
+        console.log(users);
+    })
 
+    socket.on('connectUser', (username) => {
+        if (users.has(username)) {
+            socket.join(users.get(username))
+            socket.to(users.get(username)).emit("message", `${username} has joined the chat.`)
+        };
     })
 
     socket.on('joinRoom', (data) => {
         let codeFound = false;
-        socket.join(data.roomCode)
         for (let i = 0; i < rooms.length; i++) {
             if (rooms[i].roomCode === data.roomCode && data.user !== '') {
                 codeFound = true
@@ -57,19 +64,16 @@ io.on('connection', (socket) => {
             rooms.push(data)
             console.log(rooms)
             socket.join(data.roomCode)
-            socket.to(data.roomCode).emit("message", `${data.user} has joined the chat.`)
-
+            users.set(data.user, data.roomCode);
         }
         if (!codeFound) {
             console.log('Code does not exist.')
         }
-
-        if (data.user === '') {
-            console.log('Input username')
-        }
-
     })
 
-
+    // socket.on('message', (message) => {
+    //     console.log(message)
+    //     socket.emit('incomingMessage', (message));
+    // })
 
 })
