@@ -2,11 +2,16 @@ var socket = io();
 const chatMessages = document.querySelector('.messages');
 const form = document.querySelector('.input-field')
 
-socket.on('message', (message) => {
-    console.log(message)
-    outputMessage(message)
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+socket.on('connect', () => {
+    let username = localStorage.getItem('username');
+    socket.emit('connectUser', (username));
 })
+
+// socket.on('incomingMessage', (message) => {
+//     console.log(message)
+//     outputMessage(message)
+//     chatMessages.scrollTop = chatMessages.scrollHeight;
+// })
 
 
 form.addEventListener('submit', (e) => {
