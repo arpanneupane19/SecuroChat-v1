@@ -1,33 +1,26 @@
 var socket = io();
 const chatMessages = document.querySelector('.messages');
-const form = document.querySelector('.input-field')
 
+
+
+// Connection
 socket.on('connect', () => {
     let username = localStorage.getItem('username');
     socket.emit('connectUser', (username));
 })
 
-// socket.on('incomingMessage', (message) => {
-//     console.log(message)
-//     outputMessage(message)
-//     chatMessages.scrollTop = chatMessages.scrollHeight;
-// })
+// form submits => socket.emit('message', {message: form.messageValue, sender: localStorageUsername})
 
-
-form.addEventListener('submit', (e) => {
-    e.preventDefault()
-    let message = e.target.elements.message.value;
-
-    message = message.trim();
-
-    socket.emit('message', message);
-
-    // Clear input
-    e.target.elements.message.value = '';
-    e.target.elements.message.focus();
+// Messages that the securo bot sends.
+socket.on('botMessage', (message) => {
+    console.log(message)
+    outputMessage(message)
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 })
 
 
+
+// Output messages onto screen.
 function outputMessage(message) {
     const div = document.createElement('div');
     div.classList.add('message');
