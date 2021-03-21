@@ -25,6 +25,7 @@ let id = new Map();
 // map rooms to the users inside
 let rooms = new Map();
 
+let codeExists = false;
 
 app.get('/:code', function (req, res) {
     // If the rooms map has the code passed in the url, do this
@@ -37,13 +38,22 @@ app.get('/:code', function (req, res) {
 
 });
 
+
 io.on('connection', (socket) => {
     // Create room, takes in data, and then sets the users map and the rooms map with the data given and joins the room.
     socket.on('createRoom', (data) => {
-        rooms.set(data.roomCode, [data.user])
-        users.set(data.user, data.roomCode);
-        socket.join(data.roomCode);
-        console.log(rooms, users);
+        if (rooms.has(data.roomCode)) {
+            console.log('room code already exists, cannot join.')
+        }
+
+        if (!rooms.has(data.roomCode)) {
+            rooms.set(data.roomCode, [data.user])
+            users.set(data.user, data.roomCode);
+            socket.join(data.roomCode);
+            console.log(rooms, users);
+            socket.emit('redirect', `${data.roomCode}`)
+        }
+
 
     })
 
@@ -85,6 +95,7 @@ io.on('connection', (socket) => {
                 console.log(rooms);
             }
 
+
             if (!users.has(data.user)) {
                 users.set(data.user, data.roomCode);
             }
@@ -110,7 +121,6 @@ io.on('connection', (socket) => {
                 // Send a message when a user disconnects fully
                 socket.to(users.get(username)).emit('botMessage', `${username} has left the chat.`)
                 users.delete(username);
-                // console.log(rooms);
             }
             id.delete(socket.id);
         }
