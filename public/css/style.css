@@ -145,6 +145,16 @@ body {
   cursor: pointer;
 }
 
+.leave {
+  padding: 6px;
+  background-color: rgb(0, 140, 255);
+  border: 1px solid rgb(0, 140, 255);
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
 @media (min-width: 481px) and (max-width: 1024px) {
   .container {
     margin-left: 20%;
