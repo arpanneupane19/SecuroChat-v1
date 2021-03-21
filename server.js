@@ -30,9 +30,11 @@ let rooms = new Map();
 app.get('/:code', function (req, res) {
     if (rooms.has(req.params.code)) {
         res.sendFile(path.join(__dirname, 'public', 'chat.html'));
-    } else {
+    }
+    else {
         res.redirect('/');
     }
+
 });
 
 io.on('connection', (socket) => {
@@ -47,8 +49,8 @@ io.on('connection', (socket) => {
 
     socket.on('connectUser', (username) => {
         if (users.has(username)) {
+            console.log(`${username}`)
             socket.join(users.get(username))
-            console.log(id.values())
             let userFound = false;
             for (let name of id.values()) {
                 if (name === username) {
@@ -66,6 +68,10 @@ io.on('connection', (socket) => {
                 socket.to(users.get(username)).emit("botMessage", `${username} has joined the chat.`)
             }
         };
+
+        if (username === null) {
+            socket.emit('redirect', 'join.html')
+        }
     })
     socket.on('joinRoom', (data) => {
         if (rooms.has(data.roomCode)) {
@@ -102,13 +108,13 @@ io.on('connection', (socket) => {
                 users.delete(username);
             }
 
+
             id.delete(socket.id);
-
         }
-
-
     })
 
-
+    socket.on('chat', (data) => {
+        io.in(users.get(data.sender)).emit('message', `${data.sender}: ${data.message}`)
+    })
 
 })
