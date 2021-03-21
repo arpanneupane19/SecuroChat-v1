@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const socket = require('socket.io');
 const app = express();
+const moment = require('moment');
 const PORT = process.env.PORT || 3000
 const server = app.listen(PORT, () => console.log(`Server has started on port ${PORT}`))
 
@@ -25,9 +26,8 @@ let id = new Map();
 let rooms = new Map();
 
 
-
-
 app.get('/:code', function (req, res) {
+    // If the rooms map has the code passed in the url, do this
     if (rooms.has(req.params.code)) {
         res.sendFile(path.join(__dirname, 'public', 'chat.html'));
     }
@@ -38,18 +38,17 @@ app.get('/:code', function (req, res) {
 });
 
 io.on('connection', (socket) => {
-    console.log('made connection', socket.id)
-
-
+    // Create room, takes in data, and then sets the users map and the rooms map with the data given and joins the room.
     socket.on('createRoom', (data) => {
         rooms.set(data.roomCode, [data.user])
         users.set(data.user, data.roomCode);
         socket.join(data.roomCode);
+        console.log(rooms, users);
+
     })
 
     socket.on('connectUser', (username) => {
         if (users.has(username)) {
-            console.log(`${username}`)
             socket.join(users.get(username))
             let userFound = false;
             for (let name of id.values()) {
@@ -73,6 +72,8 @@ io.on('connection', (socket) => {
             socket.emit('redirect', 'join.html')
         }
     })
+
+    // First checks if the rooms map has the room code that was entered in frontend and then does validation to join rooms.
     socket.on('joinRoom', (data) => {
         if (rooms.has(data.roomCode)) {
             // Check for the array of users mapped to the room code
@@ -89,9 +90,12 @@ io.on('connection', (socket) => {
             }
 
             socket.join(data.roomCode)
+
         }
     })
 
+
+    // Disconnects and sends a disconnection message to users connected in the room.
     socket.on('disconnect', (reason) => {
         if (id.has(socket.id)) {
             let username = id.get(socket.id)
@@ -106,9 +110,8 @@ io.on('connection', (socket) => {
                 // Send a message when a user disconnects fully
                 socket.to(users.get(username)).emit('botMessage', `${username} has left the chat.`)
                 users.delete(username);
+                // console.log(rooms);
             }
-
-
             id.delete(socket.id);
         }
     })
