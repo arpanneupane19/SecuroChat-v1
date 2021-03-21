@@ -1,7 +1,9 @@
 var socket = io();
+var moment = moment();
 const chatMessages = document.querySelector('.messages');
 const messageField = document.getElementById('message');
 const send = document.getElementById('send');
+
 
 // Connection
 socket.on('connect', () => {
@@ -18,7 +20,7 @@ socket.on('redirect', (destination) => {
 send.addEventListener('click', () => {
     socket.emit('chat', {
         message: messageField.value,
-        sender: localStorage.getItem('username')
+        sender: localStorage.getItem('username'),
     });
     messageField.value = "";
     messageField.focus();
@@ -43,10 +45,13 @@ socket.on('message', (message) => {
 function outputMessage(message) {
     const div = document.createElement('div');
     div.classList.add('message');
+    const addTime = document.createElement('div');
+    addTime.innerText = moment.format('h:mm a');
     const p = document.createElement('p')
     p.classList.add('message-body')
     p.innerText = message;
 
+    div.append(addTime);
     div.appendChild(p);
     document.querySelector('.messages').appendChild(div)
 }
