@@ -3,13 +3,11 @@ const chatMessages = document.querySelector('.messages');
 const messageField = document.getElementById('message');
 const send = document.getElementById('send');
 
-
 // Connection
 socket.on('connect', () => {
     let username = localStorage.getItem('username');
     socket.emit('connectUser', (username));
 })
-
 
 // Redirect if no username is found
 socket.on('redirect', (destination) => {
@@ -25,6 +23,7 @@ send.addEventListener('click', () => {
     messageField.value = "";
     messageField.focus();
 })
+
 
 // Messages that the securo bot sends.
 socket.on('botMessage', (message) => {
