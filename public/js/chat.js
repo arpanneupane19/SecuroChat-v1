@@ -1,6 +1,7 @@
 var socket = io();
 const chatMessages = document.querySelector('.messages');
-
+const messageField = document.getElementById('message');
+const send = document.getElementById('send');
 
 
 // Connection
@@ -9,7 +10,21 @@ socket.on('connect', () => {
     socket.emit('connectUser', (username));
 })
 
-// form submits => socket.emit('message', {message: form.messageValue, sender: localStorageUsername})
+
+// Redirect if no username is found
+socket.on('redirect', (destination) => {
+    window.location.replace(`http://${document.domain}:${location.port}/${destination}`)
+
+})
+
+send.addEventListener('click', () => {
+    socket.emit('chat', {
+        message: messageField.value,
+        sender: localStorage.getItem('username')
+    });
+    messageField.value = "";
+    messageField.focus();
+})
 
 // Messages that the securo bot sends.
 socket.on('botMessage', (message) => {
@@ -18,7 +33,12 @@ socket.on('botMessage', (message) => {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 })
 
-
+// Messages that users send
+socket.on('message', (message) => {
+    console.log(message)
+    outputMessage(message)
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+})
 
 // Output messages onto screen.
 function outputMessage(message) {
