@@ -11,7 +11,7 @@ socket.on('connect', () => {
     socket.emit('connectUser', (username));
 })
 
-// Redirect if no username is found
+// Redirect if no username is found or if someone's trying to make a room that already exists.
 socket.on('redirect', (destination) => {
     window.location.replace(`http://${document.domain}:${location.port}/${destination}`)
 
