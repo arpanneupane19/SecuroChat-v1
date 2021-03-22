@@ -43,7 +43,7 @@ io.on('connection', (socket) => {
     // Create room, takes in data, and then sets the users map and the rooms map with the data given and joins the room.
     socket.on('createRoom', (data) => {
         if (rooms.has(data.roomCode)) {
-            console.log('room code already exists, cannot join.')
+            socket.emit('redirect', 'join.html')
         }
 
         if (!rooms.has(data.roomCode)) {
@@ -78,6 +78,11 @@ io.on('connection', (socket) => {
             }
         };
 
+        // Redirects to home page if user does not have a room.
+        if (!users.has(username)) {
+            socket.emit('redirect', 'index.html')
+
+        }
         if (username === null) {
             socket.emit('redirect', 'join.html')
         }
@@ -111,6 +116,7 @@ io.on('connection', (socket) => {
         if (id.has(socket.id)) {
             let username = id.get(socket.id)
             let userCount = 0;
+            // If there's multiple id's with the same username then increase the count.
             for (let name of id.values()) {
                 if (name === username) {
                     userCount++;
@@ -119,11 +125,17 @@ io.on('connection', (socket) => {
 
             if (userCount === 1) {
                 // Send a message when a user disconnects fully
+                socket.emit('redirect', 'index.html')
+                socket.leave(users.get(username));
                 socket.to(users.get(username)).emit('botMessage', `${username} has left the chat.`)
                 users.delete(username);
+
+                console.log(users)
+                console.log(rooms)
             }
             id.delete(socket.id);
         }
+
     })
 
     socket.on('chat', (data) => {
