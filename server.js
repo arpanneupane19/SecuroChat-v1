@@ -115,7 +115,9 @@ io.on('connection', (socket) => {
     socket.on('disconnect', (reason) => {
         if (id.has(socket.id)) {
             let username = id.get(socket.id)
+            let room = users.get(username)
             let userCount = 0;
+            let arrayOfUsers = rooms.get(room);
             // If there's multiple id's with the same username then increase the count.
             for (let name of id.values()) {
                 if (name === username) {
@@ -130,8 +132,14 @@ io.on('connection', (socket) => {
                 socket.to(users.get(username)).emit('botMessage', `${username} has left the chat.`)
                 users.delete(username);
 
-                console.log(users)
-                console.log(rooms)
+                if (arrayOfUsers.includes(username)) {
+                    let index = arrayOfUsers.indexOf(username)
+                    arrayOfUsers.splice(index, 1);
+                    console.log("Room once user leaves.", rooms)
+                }
+
+                console.log("users map", users)
+
             }
             id.delete(socket.id);
         }
