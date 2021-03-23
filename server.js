@@ -95,6 +95,10 @@ io.on('connection', (socket) => {
             // Check for the array of users mapped to the room code
             let arrayOfUsers = rooms.get(data.roomCode);
 
+            if (arrayOfUsers.includes(data.user)) {
+                socket.emit('redirect', 'create.html')
+            }
+
             if (!arrayOfUsers.includes(data.user)) {
                 arrayOfUsers.push(data.user);
                 rooms.set(data.roomCode, arrayOfUsers);
