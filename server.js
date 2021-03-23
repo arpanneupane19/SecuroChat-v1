@@ -107,6 +107,8 @@ io.on('connection', (socket) => {
             }
 
             socket.join(data.roomCode)
+            socket.emit('redirect', `${data.roomCode}`)
+
 
         }
     })

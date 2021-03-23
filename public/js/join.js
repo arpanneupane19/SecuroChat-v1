@@ -11,5 +11,9 @@ btn.addEventListener('click', () => {
         roomCode: codeInput.value
     });
     localStorage.setItem('username', nameInput.value)
-    window.location.replace(`http://${document.domain}:${location.port}/${codeInput.value}`)
+})
+
+socket.on('redirect', (destination) => {
+    window.location.replace(`http://${document.domain}:${location.port}/${destination}`)
+
 })
