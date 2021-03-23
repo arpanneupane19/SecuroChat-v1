@@ -43,6 +43,7 @@ io.on('connection', (socket) => {
     // Create room, takes in data, and then sets the users map and the rooms map with the data given and joins the room.
     socket.on('createRoom', (data) => {
         if (rooms.has(data.roomCode)) {
+            console.log('Room code already exists. Cannot create.')
             socket.emit('redirect', 'join.html')
         }
 
@@ -138,13 +139,25 @@ io.on('connection', (socket) => {
                     console.log("Room once user leaves.", rooms)
                 }
 
-                console.log("users map", users)
-
+                console.log("users map", users);
             }
+            if (arrayOfUsers.length === 0) {
+                rooms.delete(room);
+                console.log('deleted room', rooms);
+            }
+            else {
+                console.log(arrayOfUsers);
+            }
+
             id.delete(socket.id);
         }
 
     })
+
+    // socket.on('typing', (username) => {
+    //     socket.to(users.get(username)).emit('typing', `${username} is typing...`)
+    //     console.log(`${username}`)
+    // })
 
     socket.on('chat', (data) => {
         io.in(users.get(data.sender)).emit('message', `${data.sender}: ${data.message}`)
