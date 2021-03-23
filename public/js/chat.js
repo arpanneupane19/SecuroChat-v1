@@ -3,7 +3,7 @@ var moment = moment();
 const chatMessages = document.querySelector('.messages');
 const messageField = document.getElementById('message');
 const send = document.getElementById('send');
-
+const typingContainer = document.querySelector('.typing');
 
 // Connection
 socket.on('connect', () => {
@@ -17,13 +17,46 @@ socket.on('redirect', (destination) => {
 
 })
 
+// socket.on('typing', (typing) => {
+//     const typingMsg = typing
+//     typingContainer.append(typingMsg)
+// }
+// )
+
+messageField.addEventListener('keypress', (e) => {
+    if (e.which === 13) {
+        if (messageField.value.length !== 0) {
+            socket.emit('chat', {
+                message: messageField.value,
+                sender: localStorage.getItem('username'),
+            });
+            messageField.value = "";
+            messageField.focus();
+        }
+        else {
+            console.log('type something in lol.')
+        }
+    }
+
+    // else {
+    //     let username = localStorage.getItem('username')
+    //     socket.emit('typing', username)
+    // }
+})
+
+
 send.addEventListener('click', () => {
-    socket.emit('chat', {
-        message: messageField.value,
-        sender: localStorage.getItem('username'),
-    });
-    messageField.value = "";
-    messageField.focus();
+    if (messageField.value.length !== 0) {
+        socket.emit('chat', {
+            message: messageField.value,
+            sender: localStorage.getItem('username'),
+        });
+        messageField.value = "";
+        messageField.focus();
+    }
+    else {
+        console.log('type something in lol.')
+    }
 })
 
 
@@ -36,7 +69,6 @@ socket.on('botMessage', (message) => {
 
 // Messages that users send
 socket.on('message', (message) => {
-    console.log(message)
     outputMessage(message)
     chatMessages.scrollTop = chatMessages.scrollHeight;
 })
@@ -50,8 +82,9 @@ function outputMessage(message) {
     const p = document.createElement('p')
     p.classList.add('message-body')
     p.innerText = message;
-
     div.append(addTime);
     div.appendChild(p);
     document.querySelector('.messages').appendChild(div)
 }
+
+
