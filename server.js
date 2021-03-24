@@ -95,25 +95,29 @@ io.on('connection', (socket) => {
             // Check for the array of users mapped to the room code
             let arrayOfUsers = rooms.get(data.roomCode);
 
+            // If there's already a user with the same username, then redirect them.
             if (arrayOfUsers.includes(data.user)) {
                 socket.emit('redirect', 'create.html')
             }
 
+            // If the user has not joined yet, let them in.
             if (!arrayOfUsers.includes(data.user)) {
                 arrayOfUsers.push(data.user);
                 rooms.set(data.roomCode, arrayOfUsers);
                 console.log(rooms);
             }
 
-
+            // Set the users map with the user trying to join.
             if (!users.has(data.user)) {
                 users.set(data.user, data.roomCode);
             }
 
             socket.join(data.roomCode)
             socket.emit('redirect', `${data.roomCode}`)
+        }
 
-
+        if (!rooms.has(data.roomCode)) {
+            socket.emit('redirect', 'create.html')
         }
     })
 
